@@ -20,8 +20,18 @@ input_savefile_btn.addEventListener("click", function () {
 	cur_savefile = input_savefile.value;
 	socket.emit("savefile", input_savefile.value);
 });
+input_savefile.addEventListener("keydown", function (e) {
+	if (e.code == "Enter") {
+		cur_savefile = input_savefile.value;
+		socket.emit("savefile", input_savefile.value);
+	}
+});
 
 input_stdin_btn.addEventListener("click", function () {
 	socket.emit("stdin", input_stdin.value);
+});
+input_stdin.addEventListener("keydown", function (e) {
+	if (e.code == "Enter")
+		socket.emit("stdin", input_stdin.value);
 });
 
