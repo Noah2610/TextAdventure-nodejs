@@ -12,7 +12,7 @@ const port = 7777;
 const app = express();
 const server = app.listen(port);
 const io = socket(server);
-var convert = new ansiToHtml();
+var convert = new ansiToHtml({ bg: "#666" });
 
 //const saves_path = path.resolve(__dirname, "text-adventure/saves");
 const input_path = path.resolve(__dirname, "text-adventure/input");
@@ -33,6 +33,7 @@ io.sockets.on("connection", (socket) => {
 
 	const IP = socket.handshake.address/*.substr(7)*/;
 	console.log(chalk.green(chalk.underline(curDate("H:M:S")) + " - connected: " + chalk.bold(socket.id + " - " + IP)));
+	var output_last = "";
 	var cur_savefile = false;
 	var game = false;
 
@@ -63,8 +64,11 @@ io.sockets.on("connection", (socket) => {
 
 	function read_output() {
 		if (!cur_savefile) return "";
-		var output = convert.toHtml(fs.readFileSync(path.resolve(output_path, cur_savefile),{encoding: "UTF-8"}));
-		socket.emit("stdout",output);
+		var output = fs.readFileSync(path.resolve(output_path, cur_savefile),{encoding: "UTF-8"});
+		if (output != output_last) {
+			output_last = output;
+			socket.emit("stdout",convert.toHtml(output).replace(/\n/g,"<br>"));
+		}
 	}
 
 	var stdout_interval = setInterval(read_output, 500);
